@@ -29,6 +29,13 @@ namespace CRUDDemo
         {
             //dependancy inject
             services.AddDbContext<EmployeeDetailContext>(options => options.UseSqlServer(Configuration.GetConnectionString("ConnectString")));
+
+            //set CORS policy to allow global API calls
+            services.AddCors(options => {
+                options.AddPolicy("CorsPolicy",
+                    action => action.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+                    });
+
             //document employee API
             services.AddSwaggerGen(config => {
                 config.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
@@ -49,16 +56,20 @@ namespace CRUDDemo
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-               
+
             }
 
             app.UseSwagger();
 
-            app.UseSwaggerUI(config => {
+            app.UseSwaggerUI(config =>
+            {
                 config.SwaggerEndpoint("/swagger/v1/swagger.json", "Employee Details API");
-            } );
+
+            });
 
             app.UseHttpsRedirection();
+
+            app.UseCors("CorsPolicy");
 
             app.UseRouting();
 
